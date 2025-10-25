@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voz Oculta - Autenticação Simples</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-content {
+            display: none;
+        }
+        body {
+            background-color: #111827;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="w-full max-w-md">
+
+        <div id="auth-card-wrapper" class="bg-gray-800 text-white p-6 rounded-lg shadow-xl">
+            
+            <header class="text-center mb-6">
+                <h1 class="text-3xl font-bold text-blue-400">Voz Oculta</h1>
+                <p class="text-gray-400 mt-1">Entre ou Cadastre-se.</p>
+            </header>
+
+            <nav class="flex mb-4 border-b border-gray-700">
+                <button id="tab-login-btn" onclick="showTab('login')" class="tab-button flex-1 py-2 text-sm font-semibold border-b-2 border-blue-500 text-blue-400">
+                    Entrar
+                </button>
+                <button id="tab-register-btn" onclick="showTab('register')" class="tab-button flex-1 py-2 text-sm font-semibold text-gray-400 hover:text-white">
+                    Cadastrar
+                </button>
+                <button id="tab-anon-btn" onclick="showTab('anon')" class="tab-button flex-1 py-2 text-sm font-semibold text-gray-400 hover:text-white">
+                    Anônimo
+                </button>
+            </nav>
+
+            <div id="tab-login" class="tab-content">
+                <form id="login-form" onsubmit="handleFormSubmit(event, 'Login')">
+                    <div class="space-y-3">
+                        <input type="email" id="login-email" placeholder="Seu e-mail" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white">
+                        <input type="password" placeholder="Sua senha" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white">
+                    </div>
+                    <button type="submit" class="w-full mt-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded">
+                        Fazer Login
+                    </button>
+                </form>
+            </div>
+
+            <div id="tab-register" class="tab-content">
+                <form id="register-form" onsubmit="handleFormSubmit(event, 'Cadastro')">
+                    <div class="space-y-3">
+                        <input type="email" id="register-email" placeholder="Seu e-mail" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white">
+                        <input type="password" id="register-password" placeholder="Nova senha" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white">
+                        <input type="password" id="register-confirm-password" placeholder="Confirme sua senha" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white">
+                    </div>
+                    <button type="submit" class="w-full mt-4 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded">
+                        Criar Conta
+                    </button>
+                </form>
+            </div>
+
+            <div id="tab-anon" class="tab-content">
+                <p class="text-center text-gray-400 mb-4 text-sm">
+                    Entre sem conta. Seus dados não serão salvos.
+                </p>
+                <button onclick="handleAnonymousEntry()" class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded">
+                    Entrar Anônimo
+                </button>
+            </div>
+
+            <div id="message-area" class="mt-4 p-3 rounded text-center font-semibold hidden">
+            </div>
+
+        </div> 
+        
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('border-blue-500', 'text-blue-400', 'border-b-2');
+                button.classList.add('text-gray-400');
+            });
+
+            const targetContent = document.getElementById('tab-' + tabId);
+            if (targetContent) {
+                targetContent.style.display = 'block';
+            }
+            
+            const targetButton = document.getElementById('tab-' + tabId + '-btn');
+            if (targetButton) {
+                targetButton.classList.remove('text-gray-400');
+                targetButton.classList.add('border-blue-500', 'text-blue-400', 'border-b-2');
+            }
+
+            showMessage('');
+        }
+
+        function showMessage(message, type = 'success') {
+            const messageArea = document.getElementById('message-area');
+            
+            messageArea.className = 'mt-4 p-3 rounded text-center font-semibold';
+            
+            if (message === '') {
+                 messageArea.classList.add('hidden');
+                 return;
+            }
+
+            if (type === 'error') {
+                messageArea.classList.add('bg-red-500', 'text-white');
+            } else {
+                messageArea.classList.add('bg-green-500', 'text-white');
+            }
+            
+            messageArea.textContent = message;
+            
+            setTimeout(() => {
+                messageArea.classList.add('hidden');
+            }, 5000);
+        }
+
+        function handleFormSubmit(event, action) {
+            event.preventDefault(); 
+
+            if (action === 'Cadastro') {
+                const pass = document.getElementById('register-password').value;
+                const confirmPass = document.getElementById('register-confirm-password').value;
+                
+                if (pass !== confirmPass) {
+                    showMessage('Erro: As senhas não batem.', 'error');
+                    return;
+                }
+            }
+            
+            showMessage(`${action} realizado com sucesso!`, 'success');
+            event.target.reset(); 
+        }
+
+        function handleAnonymousEntry() {
+            showMessage('Acesso anônimo concluído!', 'success');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showTab('login');
+        });
+    </script>
+</body>
+</html>

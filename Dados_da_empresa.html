@@ -1,0 +1,208 @@
+
+    <div id="dados-empresa-view" class="w-full max-w-xl bg-card-bg text-text-light p-6 md:p-8 rounded-xl shadow-2xl transition-all duration-300 hidden">
+        
+        <header class="text-center mb-6">
+            <h2 class="text-3xl font-bold text-denounce-red">Dados da Empresa e Denúncia</h2>
+            <p class="text-gray-400 mt-1">Forneça os detalhes da empresa e o motivo da denúncia.</p>
+        </header>
+
+        <div class="bg-red-700/30 border-l-4 border-red-500 p-4 mb-6 rounded-lg shadow-inner">
+            <p class="text-red-300 font-bold flex items-center">
+             
+                <svg class="w-5 h-5 mr-2 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 19.325l.813-1.625A10.02 10.02 0 0110 16a10.02 10.02 0 015.722 1.691l.813 1.625A11.96 11.96 0 0010 18c-2.454 0-4.757-.594-6.666-1.675zM10 12a4 4 0 00-4 4v1h8v-1a4 4 0 00-4-4z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                ATENÇÃO:
+            </p>
+            <p class="text-red-200 mt-1 font-semibold text-sm">
+                Todos os motivos e informações de denúncia estão sendo gravados para fins de auditoria e segurança.
+            </p>
+        </div>
+
+        <form id="denouncement-form" onsubmit="handleDenouncementSubmit(event)">
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-gray-200 border-b border-gray-700 pb-1">Dados da Empresa</h3>
+            
+                <input type="text" id="cnpj" placeholder="CNPJ (00.000.000/0000-00)" required pattern="\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}" title="Formato: 00.000.000/0000-00" class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:ring-denounce-red focus:border-denounce-red text-white placeholder-gray-400">
+                
+       
+                <input type="text" id="rua_numero" placeholder="Rua e Número (ex: Av. Brasil, 123)" required class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:ring-denounce-red focus:border-denounce-red text-white placeholder-gray-400">
+                <div class="flex space-x-4">
+                    <input type="text" id="cidade" placeholder="Cidade (ex: São Paulo)" required class="w-1/2 p-3 rounded-lg bg-gray-700 border border-gray-600 focus:ring-denounce-red focus:border-denounce-red text-white placeholder-gray-400">
+                    <input type="text" id="cep" placeholder="Código Postal (CEP) - ex: 00000-000" required pattern="\d{5}-?\d{3}" title="Formato: XXXXX-XXX" class="w-1/2 p-3 rounded-lg bg-gray-700 border border-gray-600 focus:ring-denounce-red focus:border-denounce-red text-white placeholder-gray-400">
+                </div>
+
+                <h3 class="text-lg font-semibold text-gray-200 border-b border-gray-700 pb-1 pt-4">Motivo da Denúncia</h3>
+                <textarea id="motivo" placeholder="Descreva o Motivo da Denúncia em detalhes (mínimo 50 caracteres)" rows="6" required minlength="50" class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:ring-denounce-red focus:border-denounce-red text-white placeholder-gray-400 resize-none"></textarea>
+            </div>
+            
+            <div id="message-area-denounce" class="mt-6 p-4 rounded-lg text-center font-semibold transition duration-300 hidden">
+            </div>
+
+            <button type="submit" class="w-full mt-6 py-3 bg-denounce-red hover:bg-red-700 text-white font-bold rounded-lg transition duration-200 shadow-lg shadow-red-800/50">
+                Enviar Denúncia de Forma Oculta
+            </button>
+        </form>
+        
+    </div> 
+
+
+    
+    <div id="final-message-view" class="w-full max-w-md bg-card-bg text-text-light p-8 rounded-xl shadow-2xl text-center hidden">
+   
+    </div>
+
+
+    <script>
+   
+        let activeTab = 'login';
+        
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+                content.classList.remove('fade-in');
+            });
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('bg-accent-blue', 'text-white', 'bg-green-500', 'bg-yellow-500');
+                button.classList.add('text-gray-300', 'hover:bg-gray-600');
+            });
+
+            const targetContent = document.getElementById('tab-' + tabId);
+            const targetButton = document.getElementById('tab-' + tabId + '-btn');
+            
+            if (targetContent) {
+                targetContent.style.display = 'block';
+                targetContent.classList.add('fade-in');
+            }
+            if (targetButton) {
+                targetButton.classList.remove('text-gray-300', 'hover:bg-gray-600');
+                if (tabId === 'register') {
+                     targetButton.classList.add('bg-green-500', 'text-white');
+                } else if (tabId === 'anon') {
+                     targetButton.classList.add('bg-yellow-500', 'text-white');
+                } else {
+                     targetButton.classList.add('bg-accent-blue', 'text-white');
+                }
+            }
+
+            activeTab = tabId;
+            showMessageAuth('');
+        }
+
+    
+        function showMessageAuth(message, type = 'success') {
+            const messageArea = document.getElementById('message-area-auth');
+            messageArea.classList.remove('hidden', 'bg-red-500', 'bg-green-500', 'bg-gray-700');
+            
+            if (message === '') {
+                messageArea.classList.add('hidden');
+                return;
+            }
+
+            if (type === 'error') {
+                messageArea.classList.add('bg-red-500', 'text-white');
+            } else if (type === 'success') {
+                messageArea.classList.add('bg-green-500', 'text-white');
+            }
+            
+            messageArea.textContent = message;
+            
+            setTimeout(() => {
+                messageArea.classList.add('hidden');
+            }, 5000);
+        }
+        
+        function showMessageDenounce(message, type = 'success') {
+            const messageArea = document.getElementById('message-area-denounce');
+            messageArea.classList.remove('hidden', 'bg-red-500', 'bg-green-500', 'bg-gray-700');
+            
+            if (message === '') {
+                messageArea.classList.add('hidden');
+                return;
+            }
+
+            if (type === 'error') {
+                messageArea.classList.add('bg-red-500', 'text-white');
+            } else if (type === 'success') {
+                messageArea.classList.add('bg-green-500', 'text-white');
+            }
+            
+            messageArea.textContent = message;
+            
+            setTimeout(() => {
+                messageArea.classList.add('hidden');
+            }, 5000);
+        }
+
+
+        function navigateToDenouncementForm(action) {
+            document.getElementById('auth-view').style.display = 'none';
+            
+            const denouncementView = document.getElementById('dados-empresa-view');
+            denouncementView.style.display = 'block';
+            denouncementView.classList.add('fade-in');
+
+            showMessageDenounce(`Autenticação (${action}) bem-sucedida! Por favor, prossiga.`, 'success');
+        }
+
+        function handleFormSubmit(event, action) {
+            event.preventDefault(); 
+
+            
+            if (action === 'Cadastro') {
+                const pass = document.getElementById('register-password').value;
+                const confirmPass = document.getElementById('register-confirm-password').value;
+                
+                if (pass !== confirmPass) {
+                    showMessageAuth('As senhas não coincidem. Por favor, verifique.', 'error');
+                    return;
+                }
+                
+                if (pass.length < 6) {
+                    showMessageAuth('A senha deve ter pelo menos 6 caracteres.', 'error');
+                    return;
+                }
+            }
+            
+            navigateToDenouncementForm(action);
+            event.target.reset(); 
+        }
+
+        function handleAnonymousEntry() {
+            navigateToDenouncementForm('Acesso Anônimo');
+        }
+
+        function handleDenouncementSubmit(event) {
+            event.preventDefault();
+            
+            const cnpj = document.getElementById('cnpj').value;
+            
+            console.log(`Denúncia SIMULADA enviada! CNPJ: ${cnpj}`);
+            
+            document.getElementById('dados-empresa-view').style.display = 'none';
+
+            const finalMessageView = document.getElementById('final-message-view');
+            finalMessageView.classList.remove('hidden');
+            finalMessageView.classList.add('fade-in');
+
+            finalMessageView.innerHTML = `
+                <div class="p-8">
+                    <h2 class="text-3xl font-extrabold text-green-400 mb-3">Denúncia Registrada!</h2>
+                    <p class="text-gray-300">Sua denúncia sobre a empresa CNPJ <span class="font-bold">${cnpj}</span> foi enviada com sucesso ao sistema Voz Oculta.</p>
+                    <div class="bg-red-700/50 p-3 mt-4 rounded-lg">
+                        <p class="text-red-200 font-semibold">AVISO: Todas as informações foram gravadas e anonimizadas.</p>
+                        <p class="text-red-100 text-sm">Agradecemos sua colaboração e coragem.</p>
+                    </div>
+                    
+                    <button onclick="window.location.reload()" class="w-full mt-6 py-3 bg-accent-blue hover:bg-blue-600 text-white font-bold rounded-lg transition duration-200">
+                        Voltar para o Início
+                    </button>
+                </div>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showTab('login');
+        });
+    </script>
+</body>
+</html>
